@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Mapa das Artes Visuais DF</title>
+    <meta charset="UTF-8">
+    <!-- Basic CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.6.0/pure-min.css">
+    <link href="https://fonts.googleapis.com/css?family=Titillium+Web:300,400,900" rel="stylesheet">
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" href="favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="favicon-16x16.png" sizes="16x16" />
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://npmcdn.com/leaflet@1.0.0-rc.2/dist/leaflet.css" />
+    <script src="https://npmcdn.com/leaflet@1.0.0-rc.2/dist/leaflet.js"></script>
+    <!-- Zepto -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Titillium Web', sans-serif;
+            font-weight: 300
+        }
+        
+        #left_bar {
+            position: fixed;
+            height: 100%;
+            width: 350px;
+            background: white;
+            box-shadow: 0px 0px 20px 3px rgba(0, 0, 0, 0.39);
+        }
+        
+        h1 {
+            font-weight: 300;
+            line-height: 1em
+        }
+        
+        a {
+            color: #d4003c
+        }
+        
+        .heavy {
+            font-weight: 900;
+            color: #808080
+        }
+        
+        .panel {
+            margin: 1em;
+        }
+        
+        #bottom_links {
+            position: absolute;
+            bottom: 1em;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 1.2em
+        }
+        
+        #link_sniic {
+            display: block;
+            margin-bottom: -1em;
+            text-decoration: none;
+            font-weight: 400
+        }
+        
+        #cadastro {
+            padding: 1em 2em
+        }
+        
+        .pure-button-primary,
+        .pure-button-selected,
+        a.pure-button-primary,
+        a.pure-button-selected {
+            background-color: #009fa0
+        }
+        
+        #layer_menu {
+            position: fixed;
+            right: 1em;
+            width: auto;
+            font-weight: 400;
+        }
+        
+        #layer_menu img {
+            margin-right: 0.5em;
+            margin-bottom: -0.3em;
+        }
+        
+        #detalhe{
+            position: fixed;
+            height: 100%;
+            width: 350px;
+            background: white;
+            z-index: 100;
+            transition: left 0.3s;
+        }
+        
+        .hide{
+            left: -340px !important;
+        }
+        
+        #detalhe h2, #detalhe h3 a{
+            font-weight: 400;
+        }
+        
+        #detalhe #close{
+            float:right;
+            display: block;
+            width:1.5em;
+            height:1.5em;
+            text-align: center;
+            cursor: pointer;
+        }
+        #detalhe #close:hover {
+            background: #DDD;
+        }
+        
+        #detalhe .desc {
+            font-weight: 400;
+            color: #555;
+        }
+        
+        #map {
+            z-index: -100;
+            position: fixed;
+            left: 350px;
+            right: 0;
+            height: 100%
+        }
+        
+        #map_logo {
+            position: fixed;
+            right: 1em;
+            bottom: 1em
+        }
+    </style>
+</head>
+
+<body>
+    <div id="detalhe" class="hide" style="left:0">
+       <div class="panel">
+            <h2><span id="title">Agente/Espaço</span> <span id="close">X</span></h2>
+            <h3><a href="#">name</a></h3> <img src="http://mapas.cultura.gov.br/assets/br/img/avatar--agent.png">
+            <p id="desc">desc</p>
+            <p><span class="desc">Nº SNIIC: </span><span id="det_num_sniic">####</span></p>
+            <p><span class="desc">Tipo: </span><span id="det_tipo">Tipo</span></p>
+            <p><span class="desc">Áreas de Atuação: </span><span id="det_areas">A,B,C</span></p>
+        </div>
+    </div>
+    <div id="left_bar">
+        <div class="panel pure-menu">
+            <h1>Mapa das Artes Visuais <br> <span class="heavy">DF</span></h1>
+            <ul id="menu" class="pure-menu-list">
+                <li class="pure-menu-item"><a href="#" class="pure-menu-link">Questionário</a></li>
+                <li class="pure-menu-item"><a href="#" class="pure-menu-link">Dados Interativos</a></li>
+                <li class="pure-menu-item"><a href="#" class="pure-menu-link">Palestras</a></li>
+                <li class="pure-menu-item"><a href="#" class="pure-menu-link">Catálogo</a></li>
+                <li class="pure-menu-item"><a href="#" class="pure-menu-link">Sobre o Projeto</a></li>
+            </ul>
+            <div id="bottom_links"> <a id="link_sniic" href="http://sniic.cultura.gov.br/">Conheça o SNIIC</a>
+                <br> <a id="cadastro" class="pure-button pure-button-primary" href="https://id.cultura.gov.br/">FAÇA SEU CADASTRO</a> </div>
+        </div>
+    </div> 
+    <img id="map_logo" src="map_logo.png" alt="Símbolo mapa das artes visuais do DF">
+    <div id="layer_menu" class="pure-menu pure-menu-horizontal">
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item">
+                <a id="agentes" href="#" class="pure-menu-link"><img src="m1.png">Agentes</a>
+            </li>
+            <li class="pure-menu-item">
+                <a id="espacos" href="#" class="pure-menu-link"><img src="m2.png">Espaços</a>
+            </li>
+        </ul>
+    </div>
+    <div id="map"></div>
+    <script>
+        $(function () {
+            // Init Map
+            var layer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                , subdomains: ['a', 'b', 'c']
+            });
+            var map = L.map('map', {
+                center: [-15.767805162414602, -47.789154052734375]
+                , zoom: 10
+            });
+            map.addLayer(layer);
+            //Custom Icons
+            var agente_icon = L.icon({
+                iconUrl: 'm1.png'
+                , iconSize: [24, 24]
+                , iconAnchor: [12, 12]
+            });
+            var espaco_icon = L.icon({
+                iconUrl: 'm2.png'
+                , iconSize: [24, 24]
+                , iconAnchor: [12, 12]
+            });
+            //Layers
+            var agentes = L.layerGroup().addTo(map);
+            var espacos = L.layerGroup().addTo(map);
+            $("#agentes").on("click", function (e) {
+                $(this).toggleClass("pure-menu-disabled");
+                if ($(this).hasClass("pure-menu-disabled")) {
+                    agentes.remove();
+                }
+                else {
+                    agentes.addTo(map);
+                }
+            });
+            $("#espacos").on("click", function (e) {
+                $(this).toggleClass("pure-menu-disabled");
+                if ($(this).hasClass("pure-menu-disabled")) {
+                    espacos.remove();
+                }
+                else {
+                    espacos.addTo(map);
+                }
+            });
+            
+            $("#detalhe #close").on("click", function(e) {
+                $("#detalhe").addClass("hide");
+            })
+
+            function detalhamento(string, id) {
+                console.log(id);
+                var urlsniic = "http://mapas.cultura.gov.br/api/" + string + "/findOne";
+                var sniicparam = {
+                    "id": "EQ(" + id + ")"
+                    , "@select": "singleUrl, name, type, shortDescription, terms, num_sniic"
+                    , "@files": "(avatar.avatarSmall):url"
+                };
+                $.getJSON(urlsniic, sniicparam, function (data) {
+                    console.log(data);
+                    
+                    $("#detalhe #title").html((string == "agent" ? "Agente" : "Espaço"));
+                    try {
+                        $("#detalhe img").attr("src", data["@files:avatar.avatarSmall"].url);
+                    } catch (e) {
+                        $("#detalhe img").attr("src", "http://mapas.cultura.gov.br/assets/br/img/avatar--agent.png");
+                    }
+                    $("#detalhe h3 a").html(data.name).attr("href", data.singleUrl);
+                    $("#detalhe #desc").html(data.shortDescription);
+                    $("#detalhe #det_num_sniic").html(data.num_sniic);
+                    $("#detalhe #det_tipo").html(data.type.name);
+                    $("#detalhe #det_areas").html(data.terms.area.join(", "));
+                });
+                
+                if ($("#detalhe").hasClass("hide")) {$("#detalhe").removeClass("hide")};
+            }
+            // Buscar entidades no DF
+            function get_markers(string, icon, layer) {
+                var urlsniic = "http://mapas.cultura.gov.br/api/" + string + "/find";
+                var sniicparam = {
+                    "@select": "name,location,id"
+                    , "term:area": "IN(Artes Visuais)"
+                    , "En_Estado": "EQ(DF)"
+                };
+                $.getJSON(urlsniic, sniicparam, function (data) {
+                    data.forEach(function (agente) {
+                        var m = L.marker([agente.location.latitude, agente.location.longitude], {
+                            icon: icon
+                        });
+                        m.bindTooltip(agente.name);
+                        m.addTo(layer);
+                        m.on("click", function () {
+                            detalhamento(string, agente.id)
+                        });
+                    });
+                });
+            }
+            get_markers("agent", agente_icon, agentes);
+            get_markers("space", espaco_icon, espacos);
+            //
+        });
+    </script>
+</body>
+
+</html>
